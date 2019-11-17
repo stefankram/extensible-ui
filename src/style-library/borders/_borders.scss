@@ -1,0 +1,16 @@
+// border
+// - style
+// - width
+// - color
+
+// Below 3px, a contrast ratio of 4.5:1 is required
+// 3px and above, a contrast ratio of 3:1 is required
+
+// - thinner 1px
+// - thin 2px
+// - thick 3px
+// - thicker 4px
+
+@mixin border($width, $color, $surroundingColor, $style: 'solid') {
+
+}
