@@ -1,4 +1,24 @@
-:root {
-  --white-color: #FFFFFF;
-  --black-color: #000000;
+@mixin e-swatch($color, $hue) {
+  @for $i from 1 through 9 {
+    --e-#{$color}-#{$i * 10}: hsl(#{$hue}, 100%, #{$i * 10}%);
+  }
+}
+
+@mixin e-palette($name, $color, $textColor) {
+
+}
+
+html {
+  @include create-swatch("red", 0);
+  @include create-swatch("orange", 30);
+  @include create-swatch("yellow", 60);
+  @include create-swatch("chartreuse", 90);
+  @include create-swatch("green", 120);
+  @include create-swatch("spring-green", 150);
+  @include create-swatch("cyan", 180);
+  @include create-swatch("azure", 210);
+  @include create-swatch("blue", 240);
+  @include create-swatch("violet", 270);
+  @include create-swatch("magenta", 300);
+  @include create-swatch("rose", 330);
 }
