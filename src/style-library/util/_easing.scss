@@ -1,0 +1,32 @@
+@import './power';
+
+$POLYNOMIAL_DEGREES: (
+  'LINEAR': 1,
+  'QUAD': 2,
+  'CUBIC': 3,
+);
+
+@function easeIn($x, $degree) {
+  @return pow($x, $degree);
+}
+
+@function easeOut($x, $degree) {
+  @return 1 - abs(pow($x - 1, $degree));
+}
+
+@function easeInOut($x, $degree) {
+  @if $x < 0.5 {
+    @return easeIn($x * 2, $degree) / 2;
+  }
+  @else {
+    @return easeOut(($x * 2) - 1, $degree) / 2 + 0.5;
+  }
+}
+
+@function linear($x, $yIntercept: 0, $yMax: 1, $xMax: 1) {
+  @return $yMax * easeInOut($x / $xMax, map-get($POLYNOMIAL_DEGREES, 'LINEAR')) + $yIntercept;
+}
+
+@function easeInOutQuad($x, $yIntercept: 0, $yMax: 1, $xMax: 1) {
+  @return $yMax * easeInOut($x / $xMax, map-get($POLYNOMIAL_DEGREES, 'QUAD')) + $yIntercept;
+}

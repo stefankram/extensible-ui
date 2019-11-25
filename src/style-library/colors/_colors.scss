@@ -1,24 +1,68 @@
-@mixin e-swatch($color, $hue) {
+@import '../util/easing';
+
+$contrast-dark-text: hsl(0, 0%, 0%) !default;
+$contrast-light-text: hsl(0, 0%, 100%) !default;
+
+$colors: (
+  // name: (hue, saturation)
+  'grey': (0, 0),
+  'red': (0, 1),
+  'orange': (30, 1),
+  'yellow': (60, 1),
+  'chartreuse': (90, 1),
+  'green': (120, 1),
+  'spring-green': (150, 1),
+  'cyan': (180, 1),
+  'azure': (210, 1),
+  'blue': (240, 1),
+  'violet': (270, 1),
+  'magenta': (300, 1),
+  'rose': (330, 1),
+);
+
+@mixin create-swatch($color) {
   @for $i from 1 through 9 {
-    --e-#{$color}-#{$i * 10}: hsl(#{$hue}, 100%, #{$i * 10}%);
+    --e-#{$color}-#{$i * 10}: hsl(var(--e-#{$color}-hue), var(--e-#{$color}-saturation), #{"#{linear($i, 0, 100, 10)}%"});
   }
 }
 
-@mixin e-palette($name, $color, $textColor) {
+@function brightness($color) {
+  @return ((red($color) * 0.299) + (green($color) * 0.587) + (blue($color) * 0.114)) / 255 * 100%;
+}
 
+@mixin create-palette($name, $lightness, $dark-text: $contrast-dark-text, $light-text: $contrast-light-text) {
+  $hue: nth(map-get($colors, $name), 1);
+  $saturation: nth(map-get($colors, $name), 2);
+  $color: hsl($hue, $saturation, $lightness);
+
+  $color-brightness: brightness($color);
+  $dark-text-brightness: brightness($dark-text);
+  $light-text-brightness: brightness($light-text);
+
+  @if (abs($color-brightness - $light-text-brightness) > abs($color-brightness - $dark-text-brightness)) {
+    --e-#{$name}-#{$lightness}-text: $light-text;
+  }
+  @else {
+    --e-#{$name}-#{$lightness}-text: $dark-text;
+  }
 }
 
 html {
-  @include create-swatch("red", 0);
-  @include create-swatch("orange", 30);
-  @include create-swatch("yellow", 60);
-  @include create-swatch("chartreuse", 90);
-  @include create-swatch("green", 120);
-  @include create-swatch("spring-green", 150);
-  @include create-swatch("cyan", 180);
-  @include create-swatch("azure", 210);
-  @include create-swatch("blue", 240);
-  @include create-swatch("violet", 270);
-  @include create-swatch("magenta", 300);
-  @include create-swatch("rose", 330);
+  --e-black: hsl(0, 0%, 0%);
+  --e-white: hsl(0, 0%, 100%);
+
+  @each $name, $color in $colors {
+    --e-#{$name}-hue: #{nth($color, 1)};
+    --e-#{$name}-saturation: #{"#{nth($color, 2) * 100}%"};
+  }
+
+  @each $name, $color in $colors {
+    @include create-swatch($name);
+  }
+
+  @for $i from 1 through 9 {
+    @each $name, $color in $colors {
+      @include create-palette($name, $i * 10);
+    }
+  }
 }
