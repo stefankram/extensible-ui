@@ -1,68 +1,94 @@
-@import '../util/easing';
+@import '../../../node_modules/hsluv-sass/src/hsluv';
 
-$contrast-dark-text: hsl(0, 0%, 0%) !default;
-$contrast-light-text: hsl(0, 0%, 100%) !default;
+/**
+ * Absolute Colors
+ *
+ * These colors are the darkest and lightest possible colors in your system.
+ */
+$darkest-color: rgb(0, 0, 0);
+$lightest-color: rgb(255, 255, 255);
 
-$colors: (
-  // name: (hue, saturation)
-  'grey': (0, 0),
-  'red': (0, 1),
-  'orange': (30, 1),
-  'yellow': (60, 1),
-  'chartreuse': (90, 1),
-  'green': (120, 1),
-  'spring-green': (150, 1),
-  'cyan': (180, 1),
-  'azure': (210, 1),
-  'blue': (240, 1),
-  'violet': (270, 1),
-  'magenta': (300, 1),
-  'rose': (330, 1),
+/**
+ * Hues
+ *
+ * The following is a mapping between a color's name and its hue.
+ */
+$hues: (
+  'red':     11,
+  'orange':  19,
+  'bronze':  39,
+  'olive':   86,
+  'green':   128,
+  'teal':    196,
+  'blue':    258,
+  'purple':  274,
+  'violet':  288,
+  'magenta': 313,
+  'pink':    0,
 );
 
-@mixin create-swatch($color) {
-  @for $i from 1 through 9 {
-    --e-#{$color}-#{$i * 10}: hsl(var(--e-#{$color}-hue), var(--e-#{$color}-saturation), #{"#{linear($i, 0, 100, 10)}%"});
+/**
+ * Saturation & Lightness
+ *
+ * These values will determine the amount of saturation and lightness used in
+ * the final color swatches.
+ */
+$saturation: 100;
+$lightness: 50;
+
+/**
+ * Swatches
+ */
+$swatch-options: (
+  // The amount of steps in the swatch. Includes the start and end colors.
+  'colors': 13,
+  // Each step in the scale will be separated by an equal amount of lightness.
+  'correctLightness': 1,
+);
+
+@mixin create-swatch($name, $color) {
+  $scale: chromatic-scale(
+    $darkest-color,
+    $color,
+    $lightest-color,
+    $swatch-options
+  );
+
+  @for $i from 1 to map-get($swatch-options, 'colors') - 1 {
+    --e-#{$name}-#{$i - 1}: #{nth($scale, $i + 1)};
   }
 }
 
-@function brightness($color) {
-  @return ((red($color) * 0.299) + (green($color) * 0.587) + (blue($color) * 0.114)) / 255 * 100%;
-}
+/**
+ * Contrast Colors
+ *
+ * These colors should be used to keep a high enough contrast ratio for each
+ * swatch. Each color in a swatch has a corresponding contrast color that can
+ * either be used as:
+ * - The background color when the swatch color is the text color.
+ * - The text color when the background is the swatch color.
+ */
+$dark-contrast: $darkest-color;
+$light-contrast: $lightest-color;
 
-@mixin create-palette($name, $lightness, $dark-text: $contrast-dark-text, $light-text: $contrast-light-text) {
-  $hue: nth(map-get($colors, $name), 1);
-  $saturation: nth(map-get($colors, $name), 2);
-  $color: hsl($hue, $saturation, $lightness);
+@mixin create-color-contrasts() {
+  $midpoint: floor((map-get($swatch-options, 'colors') - 2) / 2);
 
-  $color-brightness: brightness($color);
-  $dark-text-brightness: brightness($dark-text);
-  $light-text-brightness: brightness($light-text);
-
-  @if (abs($color-brightness - $light-text-brightness) > abs($color-brightness - $dark-text-brightness)) {
-    --e-#{$name}-#{$lightness}-text: $light-text;
+  @for $i from 0 to $midpoint - 1  {
+    --e-color-contrast-#{$i}: #{$light-contrast};
   }
-  @else {
-    --e-#{$name}-#{$lightness}-text: $dark-text;
+
+  @for $i from $midpoint through 10 {
+    --e-color-contrast-#{$i}: #{$dark-contrast};
   }
 }
 
 html {
-  --e-black: hsl(0, 0%, 0%);
-  --e-white: hsl(0, 0%, 100%);
+  @include create-swatch('grey', rgb(128, 128, 128));
 
-  @each $name, $color in $colors {
-    --e-#{$name}-hue: #{nth($color, 1)};
-    --e-#{$name}-saturation: #{"#{nth($color, 2) * 100}%"};
+  @each $color, $hue in $hues {
+    @include create-swatch($color, hsluv($hue, $saturation, $lightness));
   }
 
-  @each $name, $color in $colors {
-    @include create-swatch($name);
-  }
-
-  @for $i from 1 through 9 {
-    @each $name, $color in $colors {
-      @include create-palette($name, $i * 10);
-    }
-  }
+  @include create-color-contrasts();
 }

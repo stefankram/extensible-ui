@@ -1,11 +1,17 @@
 <template>
   <div id="app">
-    {{ message }}
+    <e-colors />
   </div>
 </template>
 
 <script>
+import eColors from './style-library/colors/colors.vue';
+
 export default {
+  components: {
+    eColors,
+  },
+
   data() {
     return {
       message: 'Hello World',
@@ -19,9 +25,6 @@ export default {
 
 body {
   font-family: var(--e-font-family);
-  font-weight: var(--e-font-weight-bold);
   font-size: var(--e-font-size-medium);
-  background-color: var(--e-red-50);
-  color: var(--test);
 }
 </style>
