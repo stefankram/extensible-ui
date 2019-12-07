@@ -74,7 +74,7 @@ $light-contrast: $lightest-color;
 @mixin create-color-contrasts() {
   $midpoint: floor((map-get($swatch-options, 'colors') - 2) / 2);
 
-  @for $i from 0 to $midpoint - 1  {
+  @for $i from 0 to $midpoint  {
     --e-color-contrast-#{$i}: #{$light-contrast};
   }
 
@@ -86,8 +86,8 @@ $light-contrast: $lightest-color;
 html {
   @include create-swatch('grey', rgb(128, 128, 128));
 
-  @each $color, $hue in $hues {
-    @include create-swatch($color, hsluv($hue, $saturation, $lightness));
+  @each $name, $hue in $hues {
+    @include create-swatch($name, hsluv($hue, $saturation, $lightness));
   }
 
   @include create-color-contrasts();
